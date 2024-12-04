@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface StorageManager {
+
     // Customer Handling
     boolean addCustomer(Customer customer);
 

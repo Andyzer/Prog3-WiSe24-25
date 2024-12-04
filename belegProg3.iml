@@ -16,5 +16,7 @@
     <orderEntry type="module" module-name="sim" />
     <orderEntry type="library" name="mockito.core" level="project" />
     <orderEntry type="library" name="javafx" level="project" />
+    <orderEntry type="module" module-name="eventSystem" />
+    <orderEntry type="module" module-name="utils" />
   </component>
 </module>

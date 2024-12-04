@@ -1,9 +1,7 @@
-import setToTheSideForNow.Lager;
-
 import java.io.*;
 
 public class JOSAdmin {
-    public static void serialize(String filename, Lager lager) {
+    public static void serialize(String filename, StorageManager lager) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(lager);
         } catch (FileNotFoundException e) {
@@ -13,9 +11,9 @@ public class JOSAdmin {
         }
     }
 
-    public static Lager deserialize(String filename) {
+    public static StorageManager deserialize(String filename) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (Lager) ois.readObject();
+            return (StorageManager) ois.readObject();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
