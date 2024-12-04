@@ -1,53 +1,53 @@
 import administration.Customer;
-import administration.Storable;
 import cargo.Cargo;
 
 import java.util.*;
 
 public class StorageManagerImpl implements StorageManager {
-
     private final int capacity;
     private final Map<String, Customer> customers = new HashMap<>();
-    private final Map<Integer, Cargo> storage = new HashMap<>();
+    private final Map<Integer, CargoSuper> storage = new HashMap<>();
     private int nextStorageLocation = 1;
 
     public StorageManagerImpl(int capacity) {
         this.capacity = capacity;
     }
 
+    // Customer Handling
+
     @Override
-    public boolean addCustomer(Customer customer) {
+    public synchronized boolean addCustomer(Customer customer) {
         if (customers.containsKey(customer.getName())) return false;
         customers.put(customer.getName(), customer);
         return true;
     }
 
     @Override
-    public boolean removeCustomer(String name) {
+    public synchronized boolean removeCustomer(String name) {
         if (!customers.containsKey(name)) return false;
 
-        storage.values().removeIf(cargo -> ((Storable) cargo).getOwner().getName().equals(name));
+        storage.values().removeIf(cargo -> cargo.getOwner().getName().equals(name));
         customers.remove(name);
         return true;
     }
 
     @Override
-    public List<String> listCustomers() {
+    public synchronized List<String> listCustomers() {
         List<String> result = new ArrayList<>();
         customers.forEach((name, customer) -> {
             long cargoCount = storage.values().stream()
-                    .filter(cargo -> ((Storable) cargo).getOwner().getName().equals(name))
+                    .filter(cargo -> cargo.getOwner().getName().equals(name))
                     .count();
             result.add(name + " (" + cargoCount + " items)");
         });
         return result;
     }
 
-    @Override
-    public boolean addCargo(Cargo cargo) {
-        if (!(cargo instanceof Stored storable)) return false;
+    // Cargo Handling
 
-        if (storage.size() >= capacity || !customers.containsKey(storable.getOwner().getName())) {
+    @Override
+    public synchronized boolean addCargo(CargoSuper cargo) {
+        if (storage.size() >= capacity || !customers.containsKey(cargo.getOwner().getName())) {
             return false;
         }
 
@@ -57,29 +57,28 @@ public class StorageManagerImpl implements StorageManager {
 
         if (nextStorageLocation > capacity) return false;
 
-        storable.setStorageLocation(nextStorageLocation);
-        storable.setInsertionDate(new Date());
+        cargo.setStorageLocation(nextStorageLocation);
+        cargo.setInsertionDate(new Date());
         storage.put(nextStorageLocation, cargo);
 
         return true;
     }
 
-
     @Override
-    public boolean removeCargo(int location) {
+    public synchronized boolean removeCargo(int location) {
         return storage.remove(location) != null;
     }
 
     @Override
     public boolean updateInspectionDate(int location, Date date) {
-        Cargo cargo = storage.get(location);
-        if (!(cargo instanceof Stored stored)) return false;
-        stored.setLastInspectionDate(date);
+        CargoSuper cargo = storage.get(location);
+        if (cargo == null) return false;
+        cargo.setLastInspectionDate(date);
         return true;
     }
 
     @Override
-    public List<Cargo> listCargoByType(Class<?> type) {
+    public synchronized List<Cargo> listCargoByType(Class<?> type) {
         List<Cargo> result = new ArrayList<>();
         for (Cargo cargo : storage.values()) {
             if (type.isInstance(cargo)) {
@@ -90,10 +89,10 @@ public class StorageManagerImpl implements StorageManager {
     }
 
     @Override
-    public List<String> listHazards(boolean include) {
+    public synchronized List<String> listHazards(boolean include) {
         Set<String> hazards = new HashSet<>();
         storage.values().forEach(cargo -> {
-            hazards.addAll(((Cargo) cargo).getHazards().stream().map(Enum::name).toList());
+            hazards.addAll(cargo.getHazards().stream().map(Enum::name).toList());
         });
         return include ? new ArrayList<>(hazards) : List.of();
     }
