@@ -1,14 +1,11 @@
 import administration.Customer;
 
-import java.io.Serializable;
+import java.util.List;
 
-public class CustomerImpl extends SuperCustomer implements Customer, Serializable {
+public interface CustomerImpl {
+    boolean addCustomer(Customer customer);
 
-    public CustomerImpl(String name) {
-        this.name = name;
-    }
+    boolean removeCustomer(String name);
 
-    public CustomerImpl() {
-
-    }
+    List<String> listCustomers();
 }
