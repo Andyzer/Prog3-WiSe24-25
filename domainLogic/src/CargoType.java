@@ -1,0 +1,8 @@
+public enum CargoType {
+    DRY_BULK_AND_UNITISED,
+    DRY_BULK,
+    LIQUID_BULK_AND_UNITISED,
+    LIQUID_AND_DRY_BULK,
+    LIQUID_BULK,
+    UNITISED
+}
