@@ -1,8 +1,5 @@
 import administration.Customer;
 import cargo.Cargo;
-import eventLogic.CargoEvent;
-import eventLogic.CargoEventHandler;
-import eventLogic.CargoEventListener;
 
 import java.util.*;
 
@@ -10,8 +7,6 @@ public class StorageManagerImpl implements StorageManager {
     private final int capacity;
     private final Map<String, Customer> customers = new HashMap<>();
     private final Map<Integer, CargoSuper> storage = new HashMap<>();
-
-    private final CargoEventHandler eventHandler = new CargoEventHandler();
 
     private int nextStorageLocation = 1;
 
@@ -54,14 +49,12 @@ public class StorageManagerImpl implements StorageManager {
     @Override
     public synchronized boolean addCargo(CargoSuper cargo) {
         if (storage.size() >= capacity) {
-            // Notify observers that the storage is full
-            eventHandler.handle(new CargoEvent(this, "Failed to add cargo: Storage is full."));
+            // Storage is full
             return false;
         }
 
         if (!customers.containsKey(cargo.getOwner().getName())) {
-            // Notify observers that the customer does not exist
-            eventHandler.handle(new CargoEvent(this, "Failed to add cargo: Customer not found - " + cargo.getOwner().getName()));
+            // Customer does not exist
             return false;
         }
 
@@ -71,8 +64,7 @@ public class StorageManagerImpl implements StorageManager {
         }
 
         if (nextStorageLocation > capacity) {
-            // Notify observers if no storage location is available
-            eventHandler.handle(new CargoEvent(this, "Failed to add cargo: No available storage location."));
+            // No available storage location
             return false;
         }
 
@@ -81,12 +73,8 @@ public class StorageManagerImpl implements StorageManager {
         cargo.setInsertionDate(new Date());
         storage.put(nextStorageLocation, cargo);
 
-        // Notify observers of successful addition
-        eventHandler.handle(new CargoEvent(this, "Cargo added successfully at location " + nextStorageLocation + "."));
-
         return true;
     }
-
 
     @Override
     public synchronized boolean removeCargo(int location) {
@@ -120,15 +108,4 @@ public class StorageManagerImpl implements StorageManager {
         });
         return include ? new ArrayList<>(hazards) : List.of();
     }
-
-
-    public void addEventListener(CargoEventListener listener) {
-        eventHandler.add(listener);
-    }
-
-    public void removeEventListener(CargoEventListener listener) {
-        eventHandler.remove(listener);
-    }
-
-
 }
