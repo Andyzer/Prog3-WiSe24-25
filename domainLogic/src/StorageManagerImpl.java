@@ -14,7 +14,6 @@ public class StorageManagerImpl implements StorageManager {
         this.capacity = capacity;
     }
 
-    // Customer Handling
 
     @Override
     public synchronized boolean addCustomer(Customer customer) {
@@ -44,31 +43,25 @@ public class StorageManagerImpl implements StorageManager {
         return result;
     }
 
-    // Cargo Handling
 
     @Override
     public synchronized boolean addCargo(CargoSuper cargo) {
         if (storage.size() >= capacity) {
-            // Storage is full
             return false;
         }
 
         if (!customers.containsKey(cargo.getOwner().getName())) {
-            // Customer does not exist
             return false;
         }
 
-        // Find the next available storage location
         while (storage.containsKey(nextStorageLocation)) {
             nextStorageLocation++;
         }
 
         if (nextStorageLocation > capacity) {
-            // No available storage location
             return false;
         }
 
-        // Assign storage location and set dates
         cargo.setStorageLocation(nextStorageLocation);
         cargo.setInsertionDate(new Date());
         storage.put(nextStorageLocation, cargo);
