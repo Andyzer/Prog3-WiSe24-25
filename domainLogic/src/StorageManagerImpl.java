@@ -1,10 +1,17 @@
 import administration.Customer;
 import cargo.Cargo;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class StorageManagerImpl implements StorageManager {
     private final int capacity;
+
+    private BigDecimal totalSize = BigDecimal.valueOf(0);
+    private BigDecimal maxSizeOfMemory = BigDecimal.valueOf(0);
+    private transient List<Observer> observerList;
+
+
     private final Map<String, Customer> customers = new HashMap<>();
     private final Map<Integer, CargoSuper> storage = new HashMap<>();
 
@@ -101,4 +108,16 @@ public class StorageManagerImpl implements StorageManager {
         });
         return include ? new ArrayList<>(hazards) : List.of();
     }
+
+
+
+    public synchronized BigDecimal getTotalSize() {
+        return this.totalSize;
+    }
+
+    public synchronized BigDecimal getMaxSizeOfMemory() {
+        return this.maxSizeOfMemory;
+    }
+
+
 }
